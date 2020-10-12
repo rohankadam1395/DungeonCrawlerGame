@@ -1,13 +1,15 @@
 import React from 'react';
 import './HomePage.css';
 import Tile from "./stonetile.jpg";
-import Tank from "./tank.jpg";
 import Brick from "./brick-wall.png";
 import HullUp from "./Hull_Straight.png";
 import HullRight from "./Hull_Right.png";
 import HullDown from "./Hull_Down.png";
 import HullLeft from "./Hull_Left.png";
 import imageLoader from "./images.js";
+import Bomb from "./bomb_005.png";
+import EnemyTank from "./EnemyTank.png";
+
 class HomePage extends React.Component {
 
     constructor(props) {
@@ -16,17 +18,23 @@ class HomePage extends React.Component {
             canvasRef: React.createRef(null),
             board: [],
             context: "",
-            players: [],
+            players: [{}],
             width: 1000,
             height: 1000,
             cellSize: 50,
             iStart: 0,
             img: "",
             tank: "",
+            enemyTank: "",
+            bomb: "",
             brick: "",
-            tankSprites:[],
-            weapons:[],
-            images:[]
+            tankSprites: [],
+            weapons: [],
+            images: [],
+            gunsCollected: [],
+            playerInfo: "Loading",
+            gameOver: false,
+            enemyHealth:100
 
         }
         this.setUpCanvas = this.setUpCanvas.bind(this);
@@ -35,58 +43,61 @@ class HomePage extends React.Component {
         this.control = this.control.bind(this);
         this.movePlayer = this.movePlayer.bind(this);
         this.changeDirection = this.changeDirection.bind(this);
+        this.canvasLoop = this.canvasLoop.bind(this);
 
-        
+
 
 
 
     }
 
 
-    changeDirection(direction){
+    changeDirection(direction) {
         let tank;
-        // console.log(tank);
-        
-switch(direction){
-case "L":
-tank=this.state.tankSprites[1];
-    break;
-    case "U":
-        tank=this.state.tankSprites[0];
-        break;
-        case "R":
-            tank=this.state.tankSprites[2];
+        // //console.log(tank);
 
-    break;
-    case "D":
-        tank=this.state.tankSprites[3];
-        break;
+        switch (direction) {
+            case "L":
+                tank = this.state.tankSprites[1];
+                break;
+            case "U":
+                tank = this.state.tankSprites[0];
+                break;
+            case "R":
+                tank = this.state.tankSprites[2];
 
-}
+                break;
+            case "D":
+                tank = this.state.tankSprites[3];
+                break;
+            default:
+                break;
+
+        }
 
 
-    this.setState({
-        tank:tank
-    },()=>{
-        console.log("Image tank is set");
-    })
+        this.setState({
+            tank: tank
+        }, () => {
+            //console.log("Image tank is set");
+        })
 
 
     }
 
     control(event) {
-        console.log("Heyyyy");
-        //         console.log(event.keyCode);
+        //console.log("Heyyyy");
+        //         //console.log(event.keyCode);
         //         let tempContext=this.state.context;
         //         tempContext.clearRect(0, 0, 500, 300);
         //         //  this.state.context.clearRect(0, 0, 1000, 600);
         //         // this.fillCanvas();
         //         let x = this.state.x;
         //         let y = this.state.y;
-        //         console.log("x "+x+" y "+y);
+        //         //console.log("x "+x+" y "+y);
         //         switch (event.keyCode) {
         //             case 37:
-        //                 console.log("In 37");
+        //                 //console.log("In 37");
         //                 if(x>0){
         //                     x=x-20;
 
@@ -100,14 +111,14 @@ tank=this.state.tankSprites[1];
         //                 }
         //                 break;
         //             case 38:
-        //                 console.log("In 38");
+        //                 //console.log("In 38");
         // if(y>-300){
         //     y=y-20;
 
         // }
         //                 break;
         //             case 39:
-        //                 console.log("In 39");
+        //                 //console.log("In 39");
         // if((x+20)<1000){
         //     x=x+20;
         // }else if((x+20)===1000 && !y>=0){
@@ -119,14 +130,14 @@ tank=this.state.tankSprites[1];
         // }
         //                 break;
         //             case 40:
-        //                 console.log("In 40");
+        //                 //console.log("In 40");
         // if((y+20)<300){
         //     y=y+20;
 
         // }
         //                 break;
         //             default:
-        //                 console.log("Default Key pressed");
+        //                 //console.log("Default Key pressed");
         //                 break;
         //         }
 
@@ -138,42 +149,48 @@ tank=this.state.tankSprites[1];
         //     y:y,
         //     context:tempContext
         // },()=>{
-        //     console.log("Check here");
-        //     console.log("x "+this.state.x+"  y "+this.state.y);
+        //     //console.log("Check here");
+        //     //console.log("x "+this.state.x+"  y "+this.state.y);
         //     if(y<0){
         //         y=0;
-        //         console.log(">>>>>>PPPPPPPPPP");
+        //         //console.log(">>>>>>PPPPPPPPPP");
 
         //     }
         //     if(x>=500){
-        //         console.log(">>>>>>KKKKKKKkk");
+        //         //console.log(">>>>>>KKKKKKKkk");
         //         x=480;
         //     }   
         //     this.createPlayer(x,y, 20, 20);
 
         // })
+        if (this.state.players[0].health > 0) {
+            this.movePlayer("Rohan", event);
 
-        this.movePlayer("Rohan", event);
+        } else {
+            this.setState({
+                gameOver: true
+            })
+        }
         event.stopPropagation();
 
 
     }
 
     movePlayer(name, event) {
-        console.log("In Move Player");
+        //console.log("In Move Player");
         let tempPlayers = this.state.players.slice();
         let index = 0;
         let toMove = tempPlayers.find((item, index) => {
-            console.log("/");
-            console.log(item);
-            console.log(index);
+            //console.log("/");
+            //console.log(item);
+            //console.log(index);
             // index=index;
             return item.name === name;
 
         });
-        console.log("To move");
-        console.log(toMove);
-
+        //console.log("To move");
+        //console.log(toMove);
+        let gunsCollected = this.state.gunsCollected.slice();
 
         let x = toMove.x;
         let y = toMove.y;
@@ -184,62 +201,201 @@ tank=this.state.tankSprites[1];
 
 
         //  let boardObj=tempBoard[y][x];
+        let bombFlag = false;
+        let gunFlag = false;
+        let enemyBrick = false;
 
         switch (event.keyCode) {
             case 37:
-                console.log("In 37");
-                if (x > 0 && tempBoard[y][x - 1].identity === "Empty") {
-                    x = x - 1;
+                //console.log("In 37");
+                if (x > 0) {
 
-                } else if (x === 0 && y > 0 && tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity === "Empty") {
-                    y = y - 1;
-                    x = (this.state.width / this.state.cellSize) - 1;
+                    if (tempBoard[y][x - 1].identity === "Empty") {
+                        x = x - 1;
+
+                    } else if (tempBoard[y][x - 1].identity === "Gun") {
+                        //console.log("Gun Type");
+                        //console.log(tempBoard[y][x - 1].gunType);
+                        gunsCollected.push(tempBoard[y][x - 1].gunType);
+                        gunFlag = true;
+                        x = x - 1;
+
+                    } else if (tempBoard[y][x - 1].identity == "Bomb") {
+                        console.log("Bomb");
+                        bombFlag = true;
+                    } else if (tempBoard[y][x - 1].identity == "Brick" && tempBoard[y][x - 1].type == "Enemy") {
+                        console.log("A Enemy Brick");
+                        enemyBrick=true;
+                    }
+
+
+                } else if (x === 0 && y > 0) {
+
+
+                    if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity === "Empty") {
+
+                        y = y - 1;
+                        x = (this.state.width / this.state.cellSize) - 1;
+                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity === "Gun") {
+                        //console.log("Gun Type");
+                        //console.log(tempBoard[y - 1][this.state.width / this.state.cellSize - 1].gunType);
+                        gunsCollected.push(tempBoard[y - 1][this.state.width / this.state.cellSize - 1].gunType);
+                        gunFlag = true;
+                        y = y - 1;
+                        x = (this.state.width / this.state.cellSize) - 1;
+                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity == "Bomb") {
+                        console.log("Bomb");
+                        bombFlag = true;
+                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity == "Brick" && tempBoard[y - 1][this.state.width / this.state.cellSize - 1].type == "Enemy") {
+                        console.log("A Enemy Brick");
+                        enemyBrick=true;
+
+                    }
+
                 }
                 this.changeDirection("L");
                 break;
             case 38:
                 console.log("In 38");
-                if (y > 0 && tempBoard[y - 1][x].identity === "Empty") {
-                    y = y - 1;
+                if (y > 0) {
+
+                    // console.log("y>0");
+                    if (tempBoard[y - 1][x].identity === "Empty") {
+                        console.log("Empty Type");
+
+                        y = y - 1;
+
+                    } else if (tempBoard[y - 1][x].identity === "Gun") {
+                        console.log("Gun Type");
+                        //console.log(tempBoard[y-1][x].gunType);
+                        gunsCollected.push(tempBoard[y - 1][x].gunType);
+                        gunFlag = true;
+                        y = y - 1;
+
+                    } else if (tempBoard[y - 1][x].identity == "Bomb") {
+                        console.log("Bomb");
+                        bombFlag = true;
+                    } else if (tempBoard[y - 1][x].identity == "Brick" && tempBoard[y - 1][x].type == "Enemy") {
+                        console.log("A Enemy Brick");
+                        enemyBrick=true;
+
+                    }
+
+
+
 
                 }
                 this.changeDirection("U");
 
                 break;
             case 39:
-                console.log("In 39");
+                //console.log("In 39");
                 this.changeDirection("R");
 
 
-                if (x < ((this.state.width / this.state.cellSize) - 1) && tempBoard[y][x + 1].identity === "Empty") {
-                    x = x + 1;
-                } else if (x === (this.state.width / this.state.cellSize - 1) && y < (this.state.height / this.state.cellSize) - 1 && tempBoard[y + 1][0].identity === "Empty") {
-                    console.log("Here Am i");
-                    y = y + 1;
-                    x = 0;
+                if (x < ((this.state.width / this.state.cellSize) - 1)) {
+                    if (tempBoard[y][x + 1].identity === "Empty") {
+                        x = x + 1;
+
+                    } else if (tempBoard[y][x + 1].identity === "Gun") {
+                        //console.log("Gun Type");
+                        //console.log(tempBoard[y][x + 1].gunType);
+                        gunsCollected.push(tempBoard[y][x + 1].gunType);
+                        gunFlag = true;
+                        x = x + 1;
+
+                    } else if (tempBoard[y][x + 1].identity == "Bomb") {
+                        console.log("Bomb");
+                        bombFlag = true;
+                    } else if (tempBoard[y][x + 1].identity == "Brick" && tempBoard[y][x + 1].type == "Enemy") {
+                        console.log("A Enemy Brick");
+                        enemyBrick=true;
+
+                    }
+
+                } else if (x === (this.state.width / this.state.cellSize - 1) && y < (this.state.height / this.state.cellSize) - 1) {
+
+                    if (tempBoard[y + 1][0].identity === "Empty") {
+                        //console.log("Here Am i");
+                        y = y + 1;
+                        x = 0;
+                    } else if (tempBoard[y + 1][0].identity === "Gun") {
+                        //console.log("Gun Type");
+                        //console.log(tempBoard[y+1][0].gunType);
+                        gunsCollected.push(tempBoard[y + 1][0].gunType);
+                        gunFlag = true;
+                        y = y + 1;
+                        x = 0;
+                    } else if (tempBoard[y + 1][0].identity == "Bomb") {
+                        console.log("Bomb");
+                        bombFlag = true;
+                    } else if (tempBoard[y + 1][0].identity == "Brick" && tempBoard[y + 1][0].type == "Enemy") {
+                        console.log("A Enemy Brick");
+                        enemyBrick=true;
+
+                    }
+
+
                 }
                 break;
             case 40:
                 this.changeDirection("D");
 
-                console.log("In 40");
-                if (y < (this.state.height / this.state.cellSize) - 1 && tempBoard[y + 1][x].identity === "Empty") {
-                    y = y + 1;
+                //console.log("In 40");
+                if (y < (this.state.height / this.state.cellSize) - 1) {
+
+
+                    if (tempBoard[y + 1][x].identity === "Empty") {
+                        //console.log("Here Am i");
+                        y = y + 1;
+                    } else if (tempBoard[y + 1][x].identity === "Gun") {
+                        //console.log("Gun Type");
+                        //console.log(tempBoard[y + 1][x].gunType);
+                        gunsCollected.push(tempBoard[y + 1][x].gunType);
+                        gunFlag = true;
+                        y = y + 1;
+                    } else if (tempBoard[y + 1][x].identity == "Bomb") {
+                        console.log("Bomb");
+                        bombFlag = true;
+                    } else if (tempBoard[y + 1][x].identity == "Brick" && tempBoard[y + 1][x].type == "Enemy") {
+                        console.log("A Enemy Brick");
+                        enemyBrick=true;
+
+                    }
+
+
 
                 }
                 break;
             default:
-                console.log("Default Key pressed");
+                //console.log("Default Key pressed");
                 break;
         }
 
         // for(let tempObj of tempPlayers){
 
-        // console.log(tempObj);
+        // //console.log(tempObj);
         // }
 
         toMove.x = x;
         toMove.y = y;
+        if (bombFlag) {
+            console.log(toMove.health);
+            toMove.health = toMove.health - 10;
+        }
+
+        if (gunFlag) {
+            toMove.level = toMove.level + 12.5;
+
+        }
+let enemyHealth=this.state.enemyHealth;
+        if(enemyBrick){
+            toMove.health = toMove.health - 10;
+            enemyHealth=enemyHealth-10;
+
+
+        }
+
         tempPlayers[index] = toMove;
 
         tempBoard[b][a].identity = "Empty";
@@ -249,7 +405,10 @@ tank=this.state.tankSprites[1];
 
         this.setState({
             players: tempPlayers,
-            board: tempBoard
+            board: tempBoard,
+            gunsCollected: gunsCollected,
+            enemyHealth:enemyHealth
+
         }, () => {
 
             this.fillCanvas();
@@ -259,29 +418,34 @@ tank=this.state.tankSprites[1];
     }
 
     createPlayer(x, y, name) {
-        console.log("Creating  player " + x + "  " + y);
+        //console.log("Creating  player " + x + "  " + y);
 
         // this.state.context.fillRect(x, y, width, height);
         let tempBoard = this.state.board.slice();
         tempBoard[y][x].identity = "Player";
         tempBoard[y][x].name = name;
+        tempBoard[y][x].health = 100;
+        tempBoard[y][x].level = 0;
+
 
 
         let obj = {
             name: name,
             x: x,
-            y: y
+            y: y,
+            health: 100,
+            level: 0
         }
 
         let tempPlayers = this.state.players.slice();
-        tempPlayers.push(obj);
+        tempPlayers[0] = obj;
 
         this.setState({
             board: tempBoard,
             players: tempPlayers
         }, () => {
-            console.log("In create player");
-            // console.log(this.state.board);
+            //console.log("In create player");
+            // //console.log(this.state.board);
             this.fillCanvas();
         })
         // this.fillCanvas();
@@ -292,36 +456,56 @@ tank=this.state.tankSprites[1];
         let context = this.state.canvasRef.current.getContext("2d");
         context.clearRect(0, 0, this.state.width, this.state.height);
         // context.fillStyle = "red";
-        console.log("Canvas Filling");
+        //console.log("Canvas Filling");
         let p = [];
         p = this.state.players.slice();
-        //  console.log(JSON.stringify(p[0])+" ++++");
+        //  //console.log(JSON.stringify(p[0])+" ++++");
 
 
         let iStart = this.state.iStart;
         if (p.length > 0) {
-            console.log("Pooooooo  " + iStart);
-            // console.log(p[0].x);
-            // console.log(p[0].y);
-            console.log((this.state.height / this.state.cellSize));
+            //console.log("Pooooooo  " + iStart);
+            // //console.log(p[0].x);
+            // //console.log(p[0].y);
+            //console.log((this.state.height / this.state.cellSize));
+            console.log(":::::::::::::::::::::::");
+            console.log(p[0].y);
+            console.log((((this.state.height / this.state.cellSize) / 2) - 1));
             if (p[0].y > (((this.state.height / this.state.cellSize) / 2) - 1) && p[0].y < (this.state.height / this.state.cellSize)) {
-                console.log("Heyyyyyyyyy");
-                iStart = p[0].y - (((this.state.height / this.state.cellSize) / 2) - 1);
+                //console.log("Heyyyyyyyyy");
+                // iStart = p[0].y - (((this.state.height / this.state.cellSize) /2) - 1);
+                if (p[0].y % 10 < 5) {
+                    console.log("Hellllllo");
+                    iStart = p[0].y - 5;
+                    console.log("new istart " + iStart);
+
+                } else {
+                    iStart = 10;
+
+                }
+
+
+                console.log("LLLL");
 
             } else {
-                iStart = 0;
+                if (p[0].y - 5 >= 0) {
+                    iStart = p[0].y - 5;
+
+                }
+                console.log("jjjjjj");
+
             }
 
-            console.log("new Istart " + iStart);
+            //console.log("new Istart " + iStart);
             this.setState({
                 iStart: iStart
             }, () => {
-                console.log("Am I late");
+                //console.log("Am I late");
 
                 for (let i = 0; i < this.state.height / 2 / this.state.cellSize; i++) {
                     // let jStart=0;
                     for (let j = 0; j < this.state.width / this.state.cellSize; j++) {
-                        // console.log("Istart "+iStart);
+                        // //console.log("Istart "+iStart);
                         if (this.state.board[iStart][j].identity === "Empty") {
 
                             // context.strokeRect(j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
@@ -337,47 +521,72 @@ tank=this.state.tankSprites[1];
                             // img.style.width="20px";
                             // img.height=20;
                             // img.width=20;
-                            // console.log(this.state.img);
+                            // //console.log(this.state.img);
                             context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                        } else if (this.state.board[iStart][j].identity === "Bomb") {
+
+                            context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+                            context.drawImage(this.state.bomb, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
                         }
                         else if (this.state.board[iStart][j].identity === "Brick") {
-                            context.drawImage(this.state.brick, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                            if (this.state.board[iStart][j].type == "Enemy") {
+                                context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
-                        }else if(this.state.board[iStart][j].identity === "Gun"){
+                                context.drawImage(this.state.brick, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+                            } else {
+                                context.drawImage(this.state.brick, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+                            }
+
+                        } else if (this.state.board[iStart][j].identity === "Gun") {
                             context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
-                           
-                        //    console.log("YYYYYYYYYYy");
-                        //    console.log((this.state.images));
-                           const images=this.state.images.slice();
 
-                        context.drawImage(images[(j%8)], j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                            //    //console.log("YYYYYYYYYYy");
+                            //    //console.log((this.state.images));
+                            const images = this.state.images.slice();
 
-                           
+                            context.drawImage(images[this.state.board[iStart][j].gunType], j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+
 
                         }
                         else {
                             // context.fillStyle = "green";
                             // context.fillRect(j*this.state.cellSize,i*this.state.cellSize,this.state.cellSize,this.state.cellSize);
-                            console.log("Drawing Tank  " + i + "  " + j);
-                            context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                            //console.log("Drawing Tank  " + i + "  " + j);
 
-                                // console.log(this.state.tank);
 
-                            context.drawImage(this.state.tank, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
-                                // this.state.tank.onload=()=>{
-                                //     console.log("Onload");
-                                //     console.log(this.state.tank);
+                            if (this.state.board[iStart][j].type === "Enemy") {
+                                context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                                context.drawImage(this.state.enemyTank, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
-                                //     context.drawImage(this.state.tank, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
-                                // }
-                            
-                            
+                            } else {
+                                context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
-                            
+                                // //console.log(this.state.tank);
 
-                            
+                                context.drawImage(this.state.tank, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+                            }
+
+                            // this.state.tank.onload=()=>{
+                            //     //console.log("Onload");
+                            //     //console.log(this.state.tank);
+
+                            //     context.drawImage(this.state.tank, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+                            // }
+
+
+
+
+
+
 
 
                         }
@@ -404,26 +613,92 @@ tank=this.state.tankSprites[1];
 
 
         document.addEventListener("keydown", (event) => {
-            console.log(event);
+            //console.log(event);
 
             this.control(event);
         });
 
-        console.log("Setting up Cabvas");
+        //console.log("Setting up Cabvas");
 
     }
+
+
+    canvasLoop(gunCount, tempBoard) {
+
+        for (let i = 0; i < this.state.height / this.state.cellSize; i++) {
+            tempBoard[i] = [];
+            for (let j = 0; j < this.state.width / this.state.cellSize; j++) {
+                if (i < 3) {
+
+                    if (j == 9 && i == 1) {
+                        tempBoard[i][j] = { identity: "Player", type: "Enemy", location: i + " " + j, health: "", level: "" };
+
+
+                    } else if (j == 8 || j == 10 || (j == 9 && i != 1)) {
+                        tempBoard[i][j] = { identity: "Brick", type: "Enemy", location: i + " " + j, health: "", level: "" };
+
+                    } else {
+                        tempBoard[i][j] = { identity: "Empty", location: i + " " + j, health: "", level: "" };
+
+                    }
+
+                } else {
+
+
+
+                    // //console.log(Math.round(Math.random()*10));
+                    let rndm = Math.round(Math.random() * 10);
+                    if (rndm === 1) {
+                        tempBoard[i][j] = { identity: "Brick", location: i + " " + j, health: "", level: "" };
+
+                    } else if (rndm === 2) {
+                        tempBoard[i][j] = { identity: "Bomb", location: i + " " + j, health: "", level: "" };
+
+                    }
+                    else if (rndm === 3) {
+                        if (gunCount < 8) {
+                            tempBoard[i][j] = { identity: "Gun", location: i + " " + j, health: "", level: "", gunType: gunCount };
+                            gunCount++;
+                        } else {
+                            tempBoard[i][j] = { identity: "Empty", location: i + " " + j, health: "", level: "" };
+
+                        }
+
+                    }
+                    else {
+
+
+                        tempBoard[i][j] = { identity: "Empty", location: i + " " + j, health: "", level: "" };
+
+
+
+
+
+                    }
+
+                }
+
+            }
+        }
+
+
+
+
+    }
+
+
     componentDidMount() {
+        //console.log("In Moutn");
 
 
-
-        let  images=imageLoader();
-let htmlimages=[];
-htmlimages  =images.map((data,index)=>{
-    let gun=document.createElement("img");
-    gun.src=data.src;
-    return gun;
-});
-        console.log(images);
+        let images = imageLoader();
+        let htmlimages = [];
+        htmlimages = images.map((data, index) => {
+            let gun = document.createElement("img");
+            gun.src = data.src;
+            return gun;
+        });
+        //console.log(images);
 
         let tempBoard = [];
         let img = document.createElement("img");
@@ -431,6 +706,8 @@ htmlimages  =images.map((data,index)=>{
         let tankL = document.createElement("img");
         let tankR = document.createElement("img");
         let tankD = document.createElement("img");
+        let bomb = document.createElement("img");
+        let enemyTank = document.createElement("img");
 
 
         // let tank = new Image(20,20);
@@ -447,79 +724,126 @@ htmlimages  =images.map((data,index)=>{
         tankL.src = HullLeft;
         tankR.src = HullRight;
         tankD.src = HullDown;
-
-       let tankSprites=this.state.tank.slice();
-       tankSprites=[tankU,tankL,tankR,tankD];
+        bomb.src = Bomb;
+        enemyTank.src = EnemyTank;
+        let tankSprites = this.state.tank.slice();
+        tankSprites = [tankU, tankL, tankR, tankD];
 
         brick.src = Brick;
         // tank.alt = "Tank";
-        console.log("1");
-
-        for (let i = 0; i < this.state.height / this.state.cellSize; i++) {
-            tempBoard[i] = [];
-            for (let j = 0; j < this.state.width / this.state.cellSize; j++) {
+        //console.log("1");
+        let gunCount = 0;
 
 
-                // console.log(Math.round(Math.random()*10));
-                let rndm = Math.round(Math.random() * 10);
-                if (rndm === 1) {
-                    tempBoard[i][j] = { identity: "Brick", location: i + " " + j };
-
-                }else if(rndm===2){
-                    tempBoard[i][j] = { identity: "Gun", location: i + " " + j };
-
-                } else {
-                    tempBoard[i][j] = { identity: "Empty", location: i + " " + j };
-
-                }
+        this.canvasLoop(gunCount, tempBoard);
 
 
-            }
-        }
-        console.log("2");
+
+        // this.state.images.map((data,index)=>{
+        //     //console.log(tempBoard);
+        //     //console.log("TempBorad above");
+        //     tempBoard[Math.ceil(Math.random()*(this.state.height / this.state.cellSize))][Math.ceil(Math.random()*(this.state.width / this.state.cellSize))]= { identity: "Gun", location: "",gunType:index};
+        //     //console.log(data);
+        // });
+
+        // else if(rndm===2){
+        //     tempBoard[i][j] = { identity: "Gun", location: i + " " + j ,gunType:Math.round(Math.random()*7)};
+
+        // }
+        //console.log("2");
 
         // tempBoard[29][0]=-1;
-        console.log("3");
-tankU.onload=()=>{
+        //console.log("3");
+        tankU.onload = () => {
 
 
-    this.setState({
-        board: tempBoard,
-        img: img,
-        tank: tankU,
-        tankSprites:tankSprites,
-        brick: brick,
-        canvasRef: canvasRef,
-        images:htmlimages
-    }, () => {
-        this.setUpCanvas();
+            this.setState({
+                board: tempBoard,
+                img: img,
+                tank: tankU,
+                bomb: bomb,
+                tankSprites: tankSprites,
+                brick: brick,
+                canvasRef: canvasRef,
+                images: htmlimages,
+                enemyTank: enemyTank
+            }, () => {
+                this.setUpCanvas();
 
-        this.createPlayer(0, ((this.state.height / this.state.cellSize) - 1), "Rohan");
+                this.createPlayer(0, ((this.state.height / this.state.cellSize) - 1), "Rohan");
+                // this.createPlayer(1,9, "Enemy");
 
 
-    })
 
-}
-      
+            })
+
+        }
+
     }
 
     render() {
+        //console.log("Rendering");
         return (
             <div id="home">
-           
+
                 <div id="title">
 
-                    <h1>Dungeon</h1>
+                    <h1>Dungeon Crawler</h1>
                 </div>
-               <div id="middle">
-                <div id="playerStats">
-                    <h1>Player Stats</h1>
+                <div id="middle">
+                    <div id="playerStats">
+                        <h1>Player Stats</h1>
+                        <div>
+                            {<table>
+                                <tbody>
+
+                                    <tr><td>Name</td><td>{this.state.players[0].name}</td></tr>
+                                    <tr><td>Level</td><td>0 <progress value={this.state.players[0].level} max="100"></progress> 100</td></tr>
+                                    <tr><td>Health</td><td>0 <progress value={this.state.players[0].health} max="100"></progress> 100</td></tr>
+                                </tbody>
+
+                            </table>
+
+                            }
+
+
+                            <div>{this.state.gameOver && <div><h1>Game Over!!!</h1>  <butto>Reset</butto></div>}</div>
+
+
+                        </div>
+                        <div id="weaponCollection">
+                            {this.state.gunsCollected.map((data, index) => {
+                                //console.log(this.state.images[data].src);
+                                return <div id="wepaonListElement"><img alt={index} className="weapons" src={this.state.images[data].src}></img></div>;
+                            })}
+                        </div>
+                        <h1>Enemy Stats</h1>
+                        <div>
+                            {<table>
+                                <tbody>
+
+                                    <tr><td>Health</td><td>0 <progress value={this.state.enemyHealth} max="100"></progress> 100</td></tr>
+                                </tbody>
+
+                            </table>
+
+                            }
+
+
+                            {/* <div>{this.state.gameOver && <h1>Game Over!!!</h1>}</div> */}
+
+
+                        </div>
+                    </div>
+      
+
+                    <div id="canvasHold">
+                        <canvas id="canvas" ref={this.state.canvasRef} ></canvas>
+                    </div>
+
                 </div>
-                <div id="canvasHold">
-                    <canvas id="canvas" ref={this.state.canvasRef} ></canvas>
-                </div>
-                </div>
-                              </div>
+
+            </div>
 
         )
     }
