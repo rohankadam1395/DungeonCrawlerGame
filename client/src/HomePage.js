@@ -34,6 +34,7 @@ class HomePage extends React.Component {
             gunsCollected: [],
             playerInfo: "Loading",
             gameOver: false,
+            gameWon:false,
             enemyHealth:100
 
         }
@@ -44,6 +45,13 @@ class HomePage extends React.Component {
         this.movePlayer = this.movePlayer.bind(this);
         this.changeDirection = this.changeDirection.bind(this);
         this.canvasLoop = this.canvasLoop.bind(this);
+        this.reset = this.reset.bind(this);
+        this.initialize = this.initialize.bind(this);
+        this.keyDown = this.keyDown.bind(this);
+
+        
+
+
 
 
 
@@ -51,6 +59,19 @@ class HomePage extends React.Component {
 
     }
 
+
+reset(){
+    // document.removeEventListener();
+
+    // document.removeEventListener("keydown", (event) => {
+    //     //console.log(event);
+
+    //     this.control(event);
+    // });
+
+this.initialize();
+
+}
 
     changeDirection(direction) {
         let tank;
@@ -85,7 +106,7 @@ class HomePage extends React.Component {
 
     }
 
-    control(event) {
+    control(event) { 
         //console.log("Heyyyy");
         //         //console.log(event.keyCode);
         //         let tempContext=this.state.context;
@@ -164,9 +185,22 @@ class HomePage extends React.Component {
 
         // })
         if (this.state.players[0].health > 0) {
+
             this.movePlayer("Rohan", event);
+            if(this.state.enemyHealth==0){
+                this.setState({
+                    gameOver: true,
+                    gameWon:true
+
+                })
+            }
+
 
         } else {
+
+
+
+
             this.setState({
                 gameOver: true
             })
@@ -390,8 +424,17 @@ class HomePage extends React.Component {
         }
 let enemyHealth=this.state.enemyHealth;
         if(enemyBrick){
-            toMove.health = toMove.health - 10;
-            enemyHealth=enemyHealth-10;
+            console.log(toMove.level+" Level");
+            if(toMove.level==100){
+                enemyHealth=enemyHealth-20;
+                toMove.health = toMove.health - 5;
+
+            }else{
+                enemyHealth=enemyHealth-5;
+                toMove.health = toMove.health - 20;
+
+
+            }
 
 
         }
@@ -604,6 +647,11 @@ let enemyHealth=this.state.enemyHealth;
 
     }
 
+    keyDown(event){
+        this.control(event);
+
+    }
+
     setUpCanvas() {
 
         // this.state.canvasRef.current.width = this.state.width; //1000
@@ -611,12 +659,10 @@ let enemyHealth=this.state.enemyHealth;
         // this.fillCanvas();
 
 
+      
 
-        document.addEventListener("keydown", (event) => {
-            //console.log(event);
 
-            this.control(event);
-        });
+        document.addEventListener("keydown", this.keyDown);
 
         //console.log("Setting up Cabvas");
 
@@ -688,6 +734,13 @@ let enemyHealth=this.state.enemyHealth;
 
 
     componentDidMount() {
+
+        this.initialize();
+
+    }
+
+    initialize(){
+
         //console.log("In Moutn");
 
 
@@ -726,7 +779,10 @@ let enemyHealth=this.state.enemyHealth;
         tankD.src = HullDown;
         bomb.src = Bomb;
         enemyTank.src = EnemyTank;
-        let tankSprites = this.state.tank.slice();
+        console.log(this.state.tank);
+        console.log("tankSprites");
+        let tankSprites = this.state.tankSprites.slice();
+
         tankSprites = [tankU, tankL, tankR, tankD];
 
         brick.src = Brick;
@@ -766,7 +822,12 @@ let enemyHealth=this.state.enemyHealth;
                 brick: brick,
                 canvasRef: canvasRef,
                 images: htmlimages,
-                enemyTank: enemyTank
+                enemyTank: enemyTank,
+                gameWon:false,
+                gameOver:false,
+                gunsCollected:[],
+                enemyHealth:100
+            
             }, () => {
                 this.setUpCanvas();
 
@@ -778,7 +839,6 @@ let enemyHealth=this.state.enemyHealth;
             })
 
         }
-
     }
 
     render() {
@@ -807,8 +867,9 @@ let enemyHealth=this.state.enemyHealth;
                             }
 
 
-                            <div>{this.state.gameOver && <div><h1>Game Over!!!</h1>  <butto>Reset</butto></div>}</div>
-
+                            <div>{this.state.gameOver && <div><h1>Game Over!!!</h1>  <button onClick={this.reset}>Reset</button></div>}</div>
+                        <div>{this.state.gameWon && <h1>You Won!!!!</h1>}</div>
+                            
 
                         </div>
                         <div id="weaponCollection">
