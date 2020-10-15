@@ -9,6 +9,9 @@ import HullLeft from "./Hull_Left.png";
 import imageLoader from "./images.js";
 import Bomb from "./bomb_005.png";
 import EnemyTank from "./EnemyTank.png";
+import EnemyPawns from "./EnemyPawns.png";
+import MediPack from "./medicalPack.png";
+
 
 class HomePage extends React.Component {
 
@@ -28,6 +31,7 @@ class HomePage extends React.Component {
             enemyTank: "",
             bomb: "",
             brick: "",
+            mediPack:"",
             tankSprites: [],
             weapons: [],
             images: [],
@@ -187,7 +191,7 @@ this.initialize();
         if (this.state.players[0].health > 0) {
 
             this.movePlayer("Rohan", event);
-            if(this.state.enemyHealth==0){
+            if(this.state.enemyHealth===0){
                 this.setState({
                     gameOver: true,
                     gameWon:true
@@ -238,6 +242,7 @@ this.initialize();
         let bombFlag = false;
         let gunFlag = false;
         let enemyBrick = false;
+        let mediFlag=false;
 
         switch (event.keyCode) {
             case 37:
@@ -254,13 +259,36 @@ this.initialize();
                         gunFlag = true;
                         x = x - 1;
 
-                    } else if (tempBoard[y][x - 1].identity == "Bomb") {
+                    } else if (tempBoard[y][x - 1].identity === "Bomb") {
                         console.log("Bomb");
                         bombFlag = true;
-                    } else if (tempBoard[y][x - 1].identity == "Brick" && tempBoard[y][x - 1].type == "Enemy") {
+                    } else if (tempBoard[y][x - 1].identity === "Brick" && tempBoard[y][x - 1].type === "Enemy") {
                         console.log("A Enemy Brick");
                         enemyBrick=true;
-                    }
+                    } else if (tempBoard[y][x - 1].identity === "EnemyPawn") {
+                        console.log("Pawn");
+                        console.log(tempBoard[y][x - 1]);
+                        if(toMove.level>tempBoard[y][x - 1].level ||tempBoard[y][x - 1].health===0 ){
+                            console.log(toMove.level+"  To move level");
+                            console.log(tempBoard[y][x - 1].level+"  TempBoard level");
+
+                            x = x - 1;
+
+                        }else{
+                            if(tempBoard[y][x - 1].health-10>0){
+                                tempBoard[y][x - 1].health=tempBoard[y][x - 1].health-10;
+                            }
+                            bombFlag = true; 
+                        }
+
+                    }else if (tempBoard[y][x - 1].identity === "medipack") {
+                        console.log("Medipack");
+
+                        x = x - 1;
+                        mediFlag=true;
+
+
+                    } 
 
 
                 } else if (x === 0 && y > 0) {
@@ -277,13 +305,34 @@ this.initialize();
                         gunFlag = true;
                         y = y - 1;
                         x = (this.state.width / this.state.cellSize) - 1;
-                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity == "Bomb") {
+                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity === "Bomb") {
                         console.log("Bomb");
                         bombFlag = true;
-                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity == "Brick" && tempBoard[y - 1][this.state.width / this.state.cellSize - 1].type == "Enemy") {
+                    } else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity === "Brick" && tempBoard[y - 1][this.state.width / this.state.cellSize - 1].type === "Enemy") {
                         console.log("A Enemy Brick");
                         enemyBrick=true;
 
+                    } else if (tempBoard[y-1][this.state.width / this.state.cellSize - 1].identity === "EnemyPawn") {
+                        console.log("Pawn");
+                        // console.log(tempBoard[y][x - 1]);
+                        if(toMove.level>tempBoard[y-1][this.state.width / this.state.cellSize - 1].level ||tempBoard[y-1][this.state.width / this.state.cellSize - 1].health===0 ){
+                            console.log(toMove.level+"  To move level");
+                            // console.log(tempBoard[y][x - 1].level+"  TempBoard level");
+
+                            y = y - 1;
+                            x = (this.state.width / this.state.cellSize) - 1;
+                        }else{
+                            if(tempBoard[y-1][this.state.width / this.state.cellSize - 1].health-10>0){
+                                tempBoard[y-1][this.state.width / this.state.cellSize - 1].health=tempBoard[y-1][this.state.width / this.state.cellSize - 1].health-10;
+                            }
+                            bombFlag = true; 
+                        }
+
+                    }else if (tempBoard[y - 1][this.state.width / this.state.cellSize - 1].identity === "medipack") {
+
+                        y = y - 1;
+                        x = (this.state.width / this.state.cellSize) - 1;
+                        mediFlag=true;
                     }
 
                 }
@@ -306,12 +355,33 @@ this.initialize();
                         gunFlag = true;
                         y = y - 1;
 
-                    } else if (tempBoard[y - 1][x].identity == "Bomb") {
+                    } else if (tempBoard[y - 1][x].identity === "Bomb") {
                         console.log("Bomb");
                         bombFlag = true;
-                    } else if (tempBoard[y - 1][x].identity == "Brick" && tempBoard[y - 1][x].type == "Enemy") {
+                    } else if (tempBoard[y - 1][x].identity === "Brick" && tempBoard[y - 1][x].type === "Enemy") {
                         console.log("A Enemy Brick");
                         enemyBrick=true;
+
+                    }else if (tempBoard[y-1][x].identity === "EnemyPawn") {
+                        console.log("Pawn");
+                        // console.log(tempBoard[y][x - 1]);
+                        if(toMove.level>tempBoard[y-1][x].level ||tempBoard[y-1][x].health===0 ){
+                            console.log(toMove.level+"  To move level");
+                            console.log(tempBoard[y-1][x].level+"  TempBoard level");
+
+                            y = y - 1;
+
+                        }else{
+                            if(tempBoard[y-1][x].health-10>0){
+                                tempBoard[y-1][x].health=tempBoard[y-1][x].health-10;
+                            }
+                            bombFlag = true; 
+                        }
+
+                    }else if (tempBoard[y - 1][x].identity === "medipack") {
+mediFlag=true;
+y = y - 1;
+
 
                     }
 
@@ -338,12 +408,34 @@ this.initialize();
                         gunFlag = true;
                         x = x + 1;
 
-                    } else if (tempBoard[y][x + 1].identity == "Bomb") {
+                    } else if (tempBoard[y][x + 1].identity === "Bomb") {
                         console.log("Bomb");
                         bombFlag = true;
-                    } else if (tempBoard[y][x + 1].identity == "Brick" && tempBoard[y][x + 1].type == "Enemy") {
+                    } else if (tempBoard[y][x + 1].identity === "Brick" && tempBoard[y][x + 1].type === "Enemy") {
                         console.log("A Enemy Brick");
                         enemyBrick=true;
+
+                    }else if (tempBoard[y][x+1].identity === "EnemyPawn") {
+                        console.log("Pawn");
+                        // console.log(tempBoard[y][x - 1]);
+                        if(toMove.level>tempBoard[y][x+1].level ||tempBoard[y][x+1].health===0 ){
+                            console.log(toMove.level+"  To move level");
+                            console.log(tempBoard[y][x+1].level+"  TempBoard level");
+
+                            x = x + 1;
+
+                        }else{
+                            if(tempBoard[y][x+1].health-10>0){
+                                tempBoard[y][x+1].health=tempBoard[y][x+1].health-10;
+                            }
+                            bombFlag = true; 
+                        }
+
+                    }else if (tempBoard[y][x + 1].identity === "medipack") {
+
+                        mediFlag=true;
+                        x = x + 1;
+
 
                     }
 
@@ -360,12 +452,34 @@ this.initialize();
                         gunFlag = true;
                         y = y + 1;
                         x = 0;
-                    } else if (tempBoard[y + 1][0].identity == "Bomb") {
+                    } else if (tempBoard[y + 1][0].identity === "Bomb") {
                         console.log("Bomb");
                         bombFlag = true;
-                    } else if (tempBoard[y + 1][0].identity == "Brick" && tempBoard[y + 1][0].type == "Enemy") {
+                    } else if (tempBoard[y + 1][0].identity === "Brick" && tempBoard[y + 1][0].type === "Enemy") {
                         console.log("A Enemy Brick");
                         enemyBrick=true;
+
+                    }else if (tempBoard[y + 1][0].identity === "medipack") {
+
+                        mediFlag=true;
+                        y = y + 1;
+                        x = 0;
+
+                    }else if (tempBoard[y+1][0].identity === "EnemyPawn") {
+                        console.log("Pawn");
+                        // console.log(tempBoard[y][x - 1]);
+                        if(toMove.level>tempBoard[y+1][0].level ||tempBoard[y+1][0].health===0 ){
+                            console.log(toMove.level+"  To move level");
+                            console.log(tempBoard[y+1][0].level+"  TempBoard level");
+
+                            y = y + 1;
+                            x = 0;
+                        }else{
+                            if(tempBoard[y+1][0].health-10>0){
+                                tempBoard[y+1][0].health=tempBoard[y+1][0].health-10;
+                            }
+                            bombFlag = true; 
+                        }
 
                     }
 
@@ -388,13 +502,32 @@ this.initialize();
                         gunsCollected.push(tempBoard[y + 1][x].gunType);
                         gunFlag = true;
                         y = y + 1;
-                    } else if (tempBoard[y + 1][x].identity == "Bomb") {
+                    } else if (tempBoard[y + 1][x].identity === "Bomb") {
                         console.log("Bomb");
                         bombFlag = true;
-                    } else if (tempBoard[y + 1][x].identity == "Brick" && tempBoard[y + 1][x].type == "Enemy") {
+                    } else if (tempBoard[y + 1][x].identity === "Brick" && tempBoard[y + 1][x].type === "Enemy") {
                         console.log("A Enemy Brick");
                         enemyBrick=true;
 
+                    }else if (tempBoard[y+1][x].identity === "EnemyPawn") {
+                        console.log("Pawn");
+                        // console.log(tempBoard[y][x - 1]);
+                        if(toMove.level>tempBoard[y+1][x].level ||tempBoard[y+1][x].health===0 ){
+                            console.log(toMove.level+"  To move level");
+                            console.log(tempBoard[y+1][x].level+"  TempBoard level");
+
+                            y = y + 1;
+
+                        }else{
+                            if(tempBoard[y+1][x].health-10>0){
+                                tempBoard[y+1][x].health=tempBoard[y+1][x].health-10;
+                            }
+                            bombFlag = true; 
+                        }
+
+                    }else if (tempBoard[y + 1][x].identity === "medipack") {
+                        y = y + 1;
+mediFlag=true;
                     }
 
 
@@ -422,10 +555,19 @@ this.initialize();
             toMove.level = toMove.level + 12.5;
 
         }
+
+        
+        if (mediFlag) {
+            toMove.health = toMove.health +10;
+
+        }
+
+        
+
 let enemyHealth=this.state.enemyHealth;
         if(enemyBrick){
             console.log(toMove.level+" Level");
-            if(toMove.level==100){
+            if(toMove.level===100){
                 enemyHealth=enemyHealth-20;
                 toMove.health = toMove.health - 5;
 
@@ -574,7 +716,7 @@ let enemyHealth=this.state.enemyHealth;
 
                         }
                         else if (this.state.board[iStart][j].identity === "Brick") {
-                            if (this.state.board[iStart][j].type == "Enemy") {
+                            if (this.state.board[iStart][j].type === "Enemy") {
                                 context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
                                 context.drawImage(this.state.brick, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
@@ -595,7 +737,20 @@ let enemyHealth=this.state.enemyHealth;
 
 
 
+                        }else if (this.state.board[iStart][j].identity === "EnemyPawn") {
+                            context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                            context.drawImage(this.state.enemyPawn, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+
+                        }else if (this.state.board[iStart][j].identity === "medipack") {
+                            context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                            context.drawImage(this.state.mediPack, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+
                         }
+
+
+                        
                         else {
                             // context.fillStyle = "green";
                             // context.fillRect(j*this.state.cellSize,i*this.state.cellSize,this.state.cellSize,this.state.cellSize);
@@ -676,11 +831,11 @@ let enemyHealth=this.state.enemyHealth;
             for (let j = 0; j < this.state.width / this.state.cellSize; j++) {
                 if (i < 3) {
 
-                    if (j == 9 && i == 1) {
+                    if (j === 9 && i === 1) {
                         tempBoard[i][j] = { identity: "Player", type: "Enemy", location: i + " " + j, health: "", level: "" };
 
 
-                    } else if (j == 8 || j == 10 || (j == 9 && i != 1)) {
+                    } else if (j === 8 || j === 10 || (j === 9 && i !== 1)) {
                         tempBoard[i][j] = { identity: "Brick", type: "Enemy", location: i + " " + j, health: "", level: "" };
 
                     } else {
@@ -693,7 +848,7 @@ let enemyHealth=this.state.enemyHealth;
 
 
                     // //console.log(Math.round(Math.random()*10));
-                    let rndm = Math.round(Math.random() * 10);
+                    let rndm = Math.round(Math.random() *25);
                     if (rndm === 1) {
                         tempBoard[i][j] = { identity: "Brick", location: i + " " + j, health: "", level: "" };
 
@@ -709,6 +864,12 @@ let enemyHealth=this.state.enemyHealth;
                             tempBoard[i][j] = { identity: "Empty", location: i + " " + j, health: "", level: "" };
 
                         }
+
+                    }else if(rndm===4){
+                        tempBoard[i][j] = {identity: "EnemyPawn",health:100, level:50, location: i + " " + j };
+
+                    }else if(rndm===5){
+                        tempBoard[i][j] = {identity: "medipack",health:10, location: i + " " + j };
 
                     }
                     else {
@@ -761,8 +922,10 @@ let enemyHealth=this.state.enemyHealth;
         let tankD = document.createElement("img");
         let bomb = document.createElement("img");
         let enemyTank = document.createElement("img");
+        let enemyPawn = document.createElement("img");
+        let mediPack = document.createElement("img");
 
-
+//MediPack
         // let tank = new Image(20,20);
 
         let brick = document.createElement("img");
@@ -778,7 +941,10 @@ let enemyHealth=this.state.enemyHealth;
         tankR.src = HullRight;
         tankD.src = HullDown;
         bomb.src = Bomb;
+        enemyPawn.src=EnemyPawns;
         enemyTank.src = EnemyTank;
+        mediPack.src=MediPack;
+
         console.log(this.state.tank);
         console.log("tankSprites");
         let tankSprites = this.state.tankSprites.slice();
@@ -826,7 +992,9 @@ let enemyHealth=this.state.enemyHealth;
                 gameWon:false,
                 gameOver:false,
                 gunsCollected:[],
-                enemyHealth:100
+                enemyHealth:100,
+                enemyPawn:enemyPawn,
+                mediPack:mediPack
             
             }, () => {
                 this.setUpCanvas();
