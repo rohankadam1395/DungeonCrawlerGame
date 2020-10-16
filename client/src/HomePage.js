@@ -11,7 +11,14 @@ import Bomb from "./bomb_005.png";
 import EnemyTank from "./EnemyTank.png";
 import EnemyPawns from "./EnemyPawns.png";
 import MediPack from "./medicalPack.png";
+import {Animated} from "react-animated-css";
 
+let sounds={
+    pickItem:new Audio("http://soundbible.com/grab.php?id=1357&type=mp3"),
+    bomb:new Audio("http://soundbible.com/grab.php?id=107&type=mp3"),
+    mediPack:new Audio("http://soundbible.com/grab.php?id=1343&type=mp3"),
+    step:new Audio("http://soundbible.com/grab.php?id=1705&type=mp3")
+}
 
 class HomePage extends React.Component {
 
@@ -39,7 +46,8 @@ class HomePage extends React.Component {
             playerInfo: "Loading",
             gameOver: false,
             gameWon:false,
-            enemyHealth:100
+            enemyHealth:100,
+            message:"Messages Here"
 
         }
         this.setUpCanvas = this.setUpCanvas.bind(this);
@@ -243,6 +251,12 @@ this.initialize();
         let gunFlag = false;
         let enemyBrick = false;
         let mediFlag=false;
+
+        
+
+        sounds["step"].pause();
+        sounds["step"].currentTime=0;
+        sounds["step"].play();
 
         switch (event.keyCode) {
             case 37:
@@ -546,26 +560,44 @@ mediFlag=true;
 
         toMove.x = x;
         toMove.y = y;
+        let msg=this.state.message;
         if (bombFlag) {
             console.log(toMove.health);
             toMove.health = toMove.health - 10;
+            sounds["bomb"].pause();
+            sounds["bomb"].currentTime=0;
+            sounds["bomb"].play();
+            msg="You Hit a Bomb";
         }
 
         if (gunFlag) {
             toMove.level = toMove.level + 12.5;
+            sounds["pickItem"].pause();
+            sounds["pickItem"].currentTime=0;
+            sounds["pickItem"].play();
+            msg="You Picked up a Gun";
 
         }
 
         
         if (mediFlag) {
             toMove.health = toMove.health +10;
-
+            
+            sounds["mediPack"].pause();
+            sounds["mediPack"].currentTime=0;
+            sounds["mediPack"].play();
+            msg="You Picked up a MediPack";
         }
 
         
 
 let enemyHealth=this.state.enemyHealth;
         if(enemyBrick){
+            msg="Hitting the Enemy";
+
+            sounds["bomb"].pause();
+            sounds["bomb"].currentTime=0;
+            sounds["bomb"].play();
             console.log(toMove.level+" Level");
             if(toMove.level===100){
                 enemyHealth=enemyHealth-20;
@@ -592,7 +624,8 @@ let enemyHealth=this.state.enemyHealth;
             players: tempPlayers,
             board: tempBoard,
             gunsCollected: gunsCollected,
-            enemyHealth:enemyHealth
+            enemyHealth:enemyHealth,
+            message:msg
 
         }, () => {
 
@@ -1026,6 +1059,8 @@ let enemyHealth=this.state.enemyHealth;
                                 <tbody>
 
                                     <tr><td>Name</td><td>{this.state.players[0].name}</td></tr>
+                                    <tr><td>XP</td><td>0 <progress value={this.state.players[0].level} max="100"></progress> 100</td></tr>
+
                                     <tr><td>Level</td><td>0 <progress value={this.state.players[0].level} max="100"></progress> 100</td></tr>
                                     <tr><td>Health</td><td>0 <progress value={this.state.players[0].health} max="100"></progress> 100</td></tr>
                                 </tbody>
@@ -1068,7 +1103,11 @@ let enemyHealth=this.state.enemyHealth;
 
                     <div id="canvasHold">
                         <canvas id="canvas" ref={this.state.canvasRef} ></canvas>
+                        <Animated animationIn="bounceInLeft" animationOut="fadeOut" isVisible={true}>
+                        <div id="infoBg">{this.state.message}</div>
+                        </Animated>
                     </div>
+                    
 
                 </div>
 
