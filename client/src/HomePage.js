@@ -11,6 +11,9 @@ import Bomb from "./bomb_005.png";
 import EnemyTank from "./EnemyTank.png";
 import EnemyPawns from "./EnemyPawns.png";
 import MediPack from "./medicalPack.png";
+import Explosion from "./Explosion_D.png";
+
+
 import {Animated} from "react-animated-css";
 
 let sounds={
@@ -19,6 +22,32 @@ let sounds={
     mediPack:new Audio("http://soundbible.com/grab.php?id=1343&type=mp3"),
     step:new Audio("http://soundbible.com/grab.php?id=1705&type=mp3")
 }
+
+
+
+
+
+// let img=new Image();
+// img.src = Tile;
+
+// let tankU=new Image();
+// tankU.src = HullUp;
+// let tankL=new Image();
+// tankL.src = HullLeft;
+// let tankR=new Image();
+// tankR.src = HullRight;
+// let tankD=new Image();
+// tankD.src = HullDown;
+// let bomb=new Image();
+// bomb.src = Bomb;
+// let enemyPawn=new Image();
+// enemyPawn.src=EnemyPawns;
+// let enemyTank=new Image();
+// enemyTank.src = EnemyTank;
+// let brick=new Image();
+// let mediPack=new Image();
+// mediPack.src=MediPack;
+// brick.src=Brick;
 
 class HomePage extends React.Component {
 
@@ -47,7 +76,8 @@ class HomePage extends React.Component {
             gameOver: false,
             gameWon:false,
             enemyHealth:100,
-            message:"Messages Here"
+            message:"Messages Here",
+            explosion:""
 
         }
         this.setUpCanvas = this.setUpCanvas.bind(this);
@@ -197,13 +227,28 @@ this.initialize();
 
         // })
         if (this.state.players[0].health > 0) {
+if(!this.state.gameOver){
+    this.movePlayer("Rohan", event);
 
-            this.movePlayer("Rohan", event);
-            if(this.state.enemyHealth===0){
+}
+            if(this.state.enemyHealth<=0){
+
+
+                let tempBoard = this.state.board.slice();
+                for(let i=0;i<3;i++){
+                    tempBoard[i][9].identity="Explosion";
+                    tempBoard[i][8].identity="Explosion";
+                    tempBoard[i][10].identity="Explosion";
+                }
+
+
                 this.setState({
                     gameOver: true,
-                    gameWon:true
+                    gameWon:true,
+                    board:tempBoard
 
+                },()=>{
+                    this.fillCanvas();
                 })
             }
 
@@ -251,6 +296,7 @@ this.initialize();
         let gunFlag = false;
         let enemyBrick = false;
         let mediFlag=false;
+        let enemyPawn = false;
 
         
 
@@ -287,6 +333,7 @@ this.initialize();
                             console.log(tempBoard[y][x - 1].level+"  TempBoard level");
 
                             x = x - 1;
+                            enemyPawn=true;
 
                         }else{
                             if(tempBoard[y][x - 1].health-10>0){
@@ -335,6 +382,8 @@ this.initialize();
 
                             y = y - 1;
                             x = (this.state.width / this.state.cellSize) - 1;
+                            enemyPawn=true;
+
                         }else{
                             if(tempBoard[y-1][this.state.width / this.state.cellSize - 1].health-10>0){
                                 tempBoard[y-1][this.state.width / this.state.cellSize - 1].health=tempBoard[y-1][this.state.width / this.state.cellSize - 1].health-10;
@@ -384,6 +433,8 @@ this.initialize();
                             console.log(tempBoard[y-1][x].level+"  TempBoard level");
 
                             y = y - 1;
+                            enemyPawn=true;
+
 
                         }else{
                             if(tempBoard[y-1][x].health-10>0){
@@ -437,6 +488,8 @@ y = y - 1;
                             console.log(tempBoard[y][x+1].level+"  TempBoard level");
 
                             x = x + 1;
+                            enemyPawn=true;
+
 
                         }else{
                             if(tempBoard[y][x+1].health-10>0){
@@ -488,6 +541,8 @@ y = y - 1;
 
                             y = y + 1;
                             x = 0;
+                            enemyPawn=true;
+
                         }else{
                             if(tempBoard[y+1][0].health-10>0){
                                 tempBoard[y+1][0].health=tempBoard[y+1][0].health-10;
@@ -531,6 +586,8 @@ y = y - 1;
                             console.log(tempBoard[y+1][x].level+"  TempBoard level");
 
                             y = y + 1;
+                            enemyPawn=true;
+
 
                         }else{
                             if(tempBoard[y+1][x].health-10>0){
@@ -581,12 +638,26 @@ mediFlag=true;
 
         
         if (mediFlag) {
-            toMove.health = toMove.health +10;
+            if(toMove.health<100){
+                toMove.health = toMove.health +10;
+
+            }
             
             sounds["mediPack"].pause();
             sounds["mediPack"].currentTime=0;
             sounds["mediPack"].play();
             msg="You Picked up a MediPack";
+        }
+
+
+        if(enemyPawn){
+if(toMove.XP<5000){
+    toMove.XP=toMove.XP+500;
+
+}
+            sounds["bomb"].pause();
+            sounds["bomb"].currentTime=0;
+            sounds["bomb"].play();
         }
 
         
@@ -599,7 +670,7 @@ let enemyHealth=this.state.enemyHealth;
             sounds["bomb"].currentTime=0;
             sounds["bomb"].play();
             console.log(toMove.level+" Level");
-            if(toMove.level===100){
+            if(toMove.level===100&&toMove.XP===5000){
                 enemyHealth=enemyHealth-20;
                 toMove.health = toMove.health - 5;
 
@@ -644,6 +715,8 @@ let enemyHealth=this.state.enemyHealth;
         tempBoard[y][x].name = name;
         tempBoard[y][x].health = 100;
         tempBoard[y][x].level = 0;
+        tempBoard[y][x].XP = 0;
+
 
 
 
@@ -652,7 +725,8 @@ let enemyHealth=this.state.enemyHealth;
             x: x,
             y: y,
             health: 100,
-            level: 0
+            level: 0,
+            XP:0
         }
 
         let tempPlayers = this.state.players.slice();
@@ -686,16 +760,16 @@ let enemyHealth=this.state.enemyHealth;
             // //console.log(p[0].x);
             // //console.log(p[0].y);
             //console.log((this.state.height / this.state.cellSize));
-            console.log(":::::::::::::::::::::::");
-            console.log(p[0].y);
-            console.log((((this.state.height / this.state.cellSize) / 2) - 1));
+            // console.log(":::::::::::::::::::::::");
+            // console.log(p[0].y);
+            // console.log((((this.state.height / this.state.cellSize) / 2) - 1));
             if (p[0].y > (((this.state.height / this.state.cellSize) / 2) - 1) && p[0].y < (this.state.height / this.state.cellSize)) {
                 //console.log("Heyyyyyyyyy");
                 // iStart = p[0].y - (((this.state.height / this.state.cellSize) /2) - 1);
                 if (p[0].y % 10 < 5) {
-                    console.log("Hellllllo");
+                    // console.log("Hellllllo");
                     iStart = p[0].y - 5;
-                    console.log("new istart " + iStart);
+                    // console.log("new istart " + iStart);
 
                 } else {
                     iStart = 10;
@@ -703,14 +777,14 @@ let enemyHealth=this.state.enemyHealth;
                 }
 
 
-                console.log("LLLL");
+                // console.log("LLLL");
 
             } else {
                 if (p[0].y - 5 >= 0) {
                     iStart = p[0].y - 5;
 
                 }
-                console.log("jjjjjj");
+                // console.log("jjjjjj");
 
             }
 
@@ -778,6 +852,12 @@ let enemyHealth=this.state.enemyHealth;
                         }else if (this.state.board[iStart][j].identity === "medipack") {
                             context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
                             context.drawImage(this.state.mediPack, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+
+
+                        }
+                        else if (this.state.board[iStart][j].identity === "Explosion") {
+                            context.drawImage(this.state.img, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
+                            context.drawImage(this.state.explosion, j * this.state.cellSize, i * this.state.cellSize, this.state.cellSize, this.state.cellSize);
 
 
                         }
@@ -957,18 +1037,21 @@ let enemyHealth=this.state.enemyHealth;
         let enemyTank = document.createElement("img");
         let enemyPawn = document.createElement("img");
         let mediPack = document.createElement("img");
+        let brick = document.createElement("img");
+
+        let explosion = document.createElement("img");
+
 
 //MediPack
         // let tank = new Image(20,20);
 
-        let brick = document.createElement("img");
 
         let canvasRef = this.state.canvasRef;
         canvasRef.current.width = this.state.width;
         canvasRef.current.height = this.state.height / 2;
 
+       explosion.src=Explosion;
         img.src = Tile;
-
         tankU.src = HullUp;
         tankL.src = HullLeft;
         tankR.src = HullRight;
@@ -977,6 +1060,7 @@ let enemyHealth=this.state.enemyHealth;
         enemyPawn.src=EnemyPawns;
         enemyTank.src = EnemyTank;
         mediPack.src=MediPack;
+        brick.src = Brick;
 
         console.log(this.state.tank);
         console.log("tankSprites");
@@ -984,7 +1068,6 @@ let enemyHealth=this.state.enemyHealth;
 
         tankSprites = [tankU, tankL, tankR, tankD];
 
-        brick.src = Brick;
         // tank.alt = "Tank";
         //console.log("1");
         let gunCount = 0;
@@ -1009,7 +1092,7 @@ let enemyHealth=this.state.enemyHealth;
 
         // tempBoard[29][0]=-1;
         //console.log("3");
-        tankU.onload = () => {
+        brick.onload = () => {
 
 
             this.setState({
@@ -1027,7 +1110,8 @@ let enemyHealth=this.state.enemyHealth;
                 gunsCollected:[],
                 enemyHealth:100,
                 enemyPawn:enemyPawn,
-                mediPack:mediPack
+                mediPack:mediPack,
+                explosion:explosion
             
             }, () => {
                 this.setUpCanvas();
@@ -1053,13 +1137,13 @@ let enemyHealth=this.state.enemyHealth;
                 </div>
                 <div id="middle">
                     <div id="playerStats">
-                        <h1>Player Stats</h1>
+                        <h1>Player Stat's</h1>
                         <div>
                             {<table>
                                 <tbody>
 
                                     <tr><td>Name</td><td>{this.state.players[0].name}</td></tr>
-                                    <tr><td>XP</td><td>0 <progress value={this.state.players[0].level} max="100"></progress> 100</td></tr>
+                                    <tr><td>XP</td><td>0 <progress value={this.state.players[0].XP  } max="5000"></progress> 5000</td></tr>
 
                                     <tr><td>Level</td><td>0 <progress value={this.state.players[0].level} max="100"></progress> 100</td></tr>
                                     <tr><td>Health</td><td>0 <progress value={this.state.players[0].health} max="100"></progress> 100</td></tr>
@@ -1081,7 +1165,7 @@ let enemyHealth=this.state.enemyHealth;
                                 return <div id="wepaonListElement"><img alt={index} className="weapons" src={this.state.images[data].src}></img></div>;
                             })}
                         </div>
-                        <h1>Enemy Stats</h1>
+                        <h1>Enemy Stat's</h1>
                         <div>
                             {<table>
                                 <tbody>
@@ -1098,6 +1182,24 @@ let enemyHealth=this.state.enemyHealth;
 
 
                         </div>
+                        <div>
+                            <h3>Instruction's</h3>
+                        <p>Collect All Gun's to increase Level</p>
+                        <p>Destryoy 5 Enemy Tanks to Increase XP</p>
+                        <p>When XP and level is full then attack the Boss</p>
+                        <div>
+                            <h3>Credit's</h3>
+<a target="__blank" href="https://craftpix.net/freebies/free-2d-battle-tank-game-assets/">Tanks,Weapons,Explosion from craftpix.net</a>
+                       
+                       <br/>
+
+                       
+                       <a target="__blank" href="https://opengameart.org/content/pietextureset">Concretes Tiles from opengameart</a>
+                      <br/>
+                      <a target="__blank" href="https://game-icons.net/1x1/delapouite/bolt-bomb.html">Bomb,Medipack and Brick from game-icons.net</a>
+                        
+                      </div>
+                        </div>
                     </div>
       
 
@@ -1106,6 +1208,8 @@ let enemyHealth=this.state.enemyHealth;
                         <Animated animationIn="bounceInLeft" animationOut="fadeOut" isVisible={true}>
                         <div id="infoBg">{this.state.message}</div>
                         </Animated>
+                       
+                       
                     </div>
                     
 
