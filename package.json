@@ -4,7 +4,8 @@
   "description": "freeCodeCamp TakeHome Project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/rohankadam1395/DungeonCrawlerGame#readme",
   "dependencies": {
+    "concurrent": "^0.3.2",
     "express": "^4.17.1"
   }
 }
