@@ -1112,7 +1112,7 @@ console.log(toLoad.length);
             data.onload=()=>{
         count++;
         console.log(count+" Count");
-        if(count==(toLoad.length-1)){
+        if(count==(toLoad.length)){
             console.log("All is loaded");
         // window.alert("All images Loaded");
         
