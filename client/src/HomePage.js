@@ -77,7 +77,8 @@ class HomePage extends React.Component {
             gameWon:false,
             enemyHealth:100,
             message:"Messages Here",
-            explosion:""
+            explosion:"",
+            loading:true
 
         }
         this.setUpCanvas = this.setUpCanvas.bind(this);
@@ -734,7 +735,8 @@ let enemyHealth=this.state.enemyHealth;
 
         this.setState({
             board: tempBoard,
-            players: tempPlayers
+            players: tempPlayers,
+            loading:false
         }, () => {
             //console.log("In create player");
             // //console.log(this.state.board);
@@ -1230,16 +1232,16 @@ console.log(toLoad.length);
                       </div>
                         </div>
                     </div>
-      
-
-                    <div id="canvasHold">
+      {this.state.loading && <h1>Loading Canvas...</h1>}
+<div id="canvasHold">
                         <canvas id="canvas" ref={this.state.canvasRef} ></canvas>
                         <Animated animationIn="bounceInLeft" animationOut="fadeOut" isVisible={true}>
                         <div id="infoBg">{this.state.message}</div>
                         </Animated>
                        
                        
-                    </div>
+                    </div> 
+                    
                     
 
                 </div>
