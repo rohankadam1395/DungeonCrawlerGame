@@ -1028,18 +1028,25 @@ let enemyHealth=this.state.enemyHealth;
         //console.log(images);
 
         let tempBoard = [];
+
         let img = document.createElement("img");
         let tankU = document.createElement("img");
         let tankL = document.createElement("img");
+
         let tankR = document.createElement("img");
         let tankD = document.createElement("img");
         let bomb = document.createElement("img");
+
         let enemyTank = document.createElement("img");
         let enemyPawn = document.createElement("img");
         let mediPack = document.createElement("img");
-        let brick = document.createElement("img");
 
+        let brick = document.createElement("img");
         let explosion = document.createElement("img");
+
+        let toLoad=[img,tankU,tankL,tankR,tankD,bomb,enemyTank,enemyPawn,mediPack,brick,explosion];
+let count=0;
+
 
 
 //MediPack
@@ -1053,14 +1060,22 @@ let enemyHealth=this.state.enemyHealth;
        explosion.src=Explosion;
         img.src = Tile;
         tankU.src = HullUp;
+
         tankL.src = HullLeft;
         tankR.src = HullRight;
         tankD.src = HullDown;
+
         bomb.src = Bomb;
         enemyPawn.src=EnemyPawns;
         enemyTank.src = EnemyTank;
+
         mediPack.src=MediPack;
         brick.src = Brick;
+
+console.log(toLoad.length);
+       
+
+
 
         console.log(this.state.tank);
         console.log("tankSprites");
@@ -1092,38 +1107,49 @@ let enemyHealth=this.state.enemyHealth;
 
         // tempBoard[29][0]=-1;
         //console.log("3");
-        brick.onload = () => {
+        toLoad.map((data,index)=>{
+            console.log(index);
+            data.onload=()=>{
+        count++;
+        console.log(count+" Count");
+        if(count==(toLoad.length-1)){
+            console.log("All is loaded");
+        // window.alert("All images Loaded");
+        
 
 
-            this.setState({
-                board: tempBoard,
-                img: img,
-                tank: tankU,
-                bomb: bomb,
-                tankSprites: tankSprites,
-                brick: brick,
-                canvasRef: canvasRef,
-                images: htmlimages,
-                enemyTank: enemyTank,
-                gameWon:false,
-                gameOver:false,
-                gunsCollected:[],
-                enemyHealth:100,
-                enemyPawn:enemyPawn,
-                mediPack:mediPack,
-                explosion:explosion
-            
-            }, () => {
-                this.setUpCanvas();
+        this.setState({
+            board: tempBoard,
+            img: img,
+            tank: tankU,
+            bomb: bomb,
+            tankSprites: tankSprites,
+            brick: brick,
+            canvasRef: canvasRef,
+            images: htmlimages,
+            enemyTank: enemyTank,
+            gameWon:false,
+            gameOver:false,
+            gunsCollected:[],
+            enemyHealth:100,
+            enemyPawn:enemyPawn,
+            mediPack:mediPack,
+            explosion:explosion
+        
+        }, () => {
+            this.setUpCanvas();
 
-                this.createPlayer(0, ((this.state.height / this.state.cellSize) - 1), "Rohan");
-                // this.createPlayer(1,9, "Enemy");
+            this.createPlayer(0, ((this.state.height / this.state.cellSize) - 1), "Rohan");
+            // this.createPlayer(1,9, "Enemy");
 
 
 
-            })
+        })
+
 
         }
+            }
+        });
     }
 
     render() {
